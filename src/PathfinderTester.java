@@ -52,6 +52,20 @@ public class PathfinderTester {
         }
 
         currentLevel.map[10][3].status = 0;
+
+        for (int i = 0;i<=15;i++)
+        {
+            currentLevel.map[8][i].status = -1;
+        }
+        for (int i = 0;i<=5;i++)
+        {
+            currentLevel.map[8-i][13].status = -1;
+        }
+        for (int i = 0;i<=6;i++)
+        {
+            currentLevel.map[6-i][5].status = -1;
+        }
+
         currentLevel.startPoint.status = -2;
         currentLevel.endPoint.status = -3;
 
@@ -67,7 +81,7 @@ public class PathfinderTester {
                         break;
                     }
                     case -2: {
-                        jPanels[i][j].setBackground(Color.GREEN);
+                        jPanels[i][j].setBackground(Color.BLUE);
                         break;
                     }
                     case -3: {
@@ -88,25 +102,30 @@ public class PathfinderTester {
 
     public static void testAStar()
     {
-        HashMap<Field,Float> openList = new HashMap<>();
-        HashMap<Field,Field> preds = new HashMap<>();
+
+        HashMap<Field,Field> precessors = new HashMap<>();
+        HashMap<Field,Double> g = new HashMap<>();
+        ArrayList<Field> openList = new ArrayList<>();
         ArrayList<Field> closedList = new ArrayList<>();
 
-        openList.put(currentLevel.startPoint,0.f);
+        openList.add(currentLevel.startPoint);
+        g.put(currentLevel.startPoint,0d);
 
         while (!openList.isEmpty()) {
             Field currentField = null;
-            for (Field field : openList.keySet()) {
-                if (currentField == null || openList.get(field) < openList.get(currentField))
+            for (Field field : openList) {
+                if (currentField == null || g.get(field) < g.get(currentField))
                     currentField = field;
             }
+            g.put(currentField,0d);
+            openList.remove(currentField);
 
             if (currentField == currentLevel.endPoint){
-                Field prev = preds.get(currentLevel.endPoint);
+                Field prev = precessors.get(currentLevel.endPoint);
                 while (prev != currentLevel.startPoint)
                 {
                     jPanels[prev.x][prev.y].setBackground(Color.GREEN);
-                    prev = preds.get(prev);
+                    prev = precessors.get(prev);
                 }
                 break;
             }
@@ -131,20 +150,25 @@ public class PathfinderTester {
                     if ((i == 0 && j == 0) || closedList.contains(successor))
                         continue;
 
-                    float newValue = openList.get(currentField) + 10;
+                    double temp_g = Double.MAX_VALUE -1d;
+                    if (g.containsKey(currentField))
+                        temp_g = g.get(currentField) + 1;
 
-                    if (openList.keySet().contains(successor) && newValue >= openList.get(successor))
+                    double temp_node_g = Double.MAX_VALUE -1d;
+                    if (g.containsKey(successor))
+                        temp_node_g = g.get(successor);
+
+                    if (openList.contains(successor) && temp_g >= temp_node_g)
                         continue;
 
-                    preds.put(successor,currentField);
-                    openList.put(successor,newValue+(float)Math.sqrt(Math.pow(currentLevel.endPoint.x - currentLevel.startPoint.x,2) + Math.pow(currentLevel.endPoint.y - currentLevel.startPoint.y,2)));
-                    jPanels[successor.x][successor.y].add(new JLabel(""+(int) (newValue+(float)Math.sqrt(Math.pow(currentLevel.endPoint.x - currentLevel.startPoint.x,2) + Math.pow(currentLevel.endPoint.y - currentLevel.startPoint.y,2)))));
+                    precessors.put(successor,currentField);
+                    g.put(successor,temp_g);
+                    if (!openList.contains(successor))
+                        openList.add(successor);
+
                 }
             }
-            openList.remove(currentField);
         }
-        System.out.println("No Path found");
-
     }
 
 }
