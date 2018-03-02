@@ -97,6 +97,7 @@ public class PathfinderTester {
             }
         }
         testAStar();
+        testMinPlus();
         jFrame.setVisible(true);
     }
 
@@ -168,6 +169,65 @@ public class PathfinderTester {
 
                 }
             }
+        }
+    }
+
+    public static void testMinPlus()
+    {
+        HashMap<Field,HashMap<Field,Double>> costMatrix = new HashMap<>();
+
+        for (int i = 0; i<currentLevel.map.length; i++)
+        {
+            for (int j = 0; j<currentLevel.map[0].length; j++)
+            {
+
+                Field a = currentLevel.map[i][j];
+                costMatrix.put(a,new HashMap<>());
+
+                for (int k = 0; k<currentLevel.map.length; k++)
+                {
+                    for (int l = 0; l<currentLevel.map[0].length; l++) {
+
+                        Field b = currentLevel.map[k][l];
+
+                        if (a == b) {
+                            costMatrix.get(a).put(b, 0d);
+                            continue;
+                        }
+
+                        if (b.status == -1) {
+                            costMatrix.get(a).put(b, Double.MAX_VALUE);
+                            continue;
+                        }
+
+                        if (Math.sqrt(Math.pow(a.x-b.x,2) + Math.pow(a.y-b.y,2)) <= Math.sqrt(2)) {
+                            costMatrix.get(a).put(b, 1d);
+                            continue;
+                        }
+
+                        costMatrix.get(a).put(b,Double.MAX_VALUE);
+                    }
+                }
+            }
+        }
+
+        double[][] endMatrix = new double[20][20];
+
+        for (Field a : costMatrix.keySet())
+        {
+            for (Field b : costMatrix.get(a).keySet())
+            {
+                for (int l = 0; l < 20; l++)
+                {
+                }
+            }
+        }
+
+        for (int i = 0; i<currentLevel.map.length; i++) {
+            for (int j = 0; j < currentLevel.map[0].length; j++) {
+                System.out.print(costMatrix.get(currentLevel.map[0][4]).get(currentLevel.map[i][j]).intValue()+ " ");
+            }
+            System.out.println("");
         }
     }
 
