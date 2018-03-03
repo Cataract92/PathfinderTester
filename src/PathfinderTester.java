@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +23,15 @@ public class PathfinderTester {
         public Field endPoint;
     }
 
+    public static class FieldMatrix
+    {
+        public double[][] m;
+
+        public FieldMatrix(int width, int height)
+        {
+            m = new double[width*height][width*height];
+        }
+    }
 
     static Level currentLevel;
     static JPanel[][] jPanels;
@@ -30,7 +41,75 @@ public class PathfinderTester {
         JFrame jFrame = new JFrame("PathfinderTester");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setSize(20*30,20*30);
-        jFrame.setLayout(new GridLayout(20,20));
+
+        JPanel text = new JPanel();
+        text.add(new JLabel("LMB: StartPoint; RMB EndPoint; MMB Barrier"));
+
+        jFrame.add(text,BorderLayout.NORTH);
+
+        JPanel grid = new JPanel();
+        grid.setLayout(new GridLayout(20,20));
+        jFrame.add(grid,BorderLayout.CENTER);
+
+        JPanel buttons = new JPanel();
+        JButton startAStar = new JButton("A*");
+        startAStar.addActionListener(e -> {
+            for (int i = 0;i<currentLevel.map.length;i++) {
+                for (int j = 0; j < currentLevel.map[0].length; j++) {
+                    switch (currentLevel.map[i][j].status) {
+                        case -1: {
+                            jPanels[i][j].setBackground(Color.BLACK);
+                            break;
+                        }
+                        case -2: {
+                            jPanels[i][j].setBackground(Color.BLUE);
+                            break;
+                        }
+                        case -3: {
+                            jPanels[i][j].setBackground(Color.RED);
+                            break;
+                        }
+                        default: {
+                            jPanels[i][j].setBackground(Color.GRAY);
+                        }
+                    }
+                }
+            }
+            testAStar();
+            jFrame.setVisible(true);
+        });
+        buttons.add(startAStar);
+
+        JButton startMinMax = new JButton("MinPlus");
+        startMinMax.addActionListener(e -> {
+            for (int i = 0;i<currentLevel.map.length;i++) {
+                for (int j = 0; j < currentLevel.map[0].length; j++) {
+                    switch (currentLevel.map[i][j].status) {
+                        case -1: {
+                            jPanels[i][j].setBackground(Color.BLACK);
+                            break;
+                        }
+                        case -2: {
+                            jPanels[i][j].setBackground(Color.BLUE);
+                            break;
+                        }
+                        case -3: {
+                            jPanels[i][j].setBackground(Color.RED);
+                            break;
+                        }
+                        default: {
+                            jPanels[i][j].setBackground(Color.GRAY);
+                        }
+                    }
+                }
+            }
+            testMinPlus();
+            jFrame.setVisible(true);
+        });
+        buttons.add(startMinMax);
+
+        jFrame.add(buttons,BorderLayout.SOUTH);
+
 
         currentLevel = new Level();
 
@@ -70,12 +149,115 @@ public class PathfinderTester {
         currentLevel.startPoint.status = -2;
         currentLevel.endPoint.status = -3;
 
-
-
         for (int i = 0;i<currentLevel.map.length;i++) {
             for (int j = 0; j < currentLevel.map[0].length; j++) {
                 jPanels[i][j] = new JPanel();
                 jPanels[i][j].setSize(10, 10);
+                jPanels[i][j].addMouseListener(new MouseListener() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getButton() == MouseEvent.BUTTON1)
+                        {
+                            JPanel tmp = (JPanel) e.getSource();
+                            int tmpi = 0;
+                            int tmpj = 0;
+                            for (int i = 0; i< currentLevel.map.length; i++)
+                            {
+                                for (int j = 0; j < currentLevel.map[0].length; j++)
+                                {
+                                    if (jPanels[i][j] == tmp)
+                                    {
+                                        tmpi = i;
+                                        tmpj = j;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (currentLevel.map[tmpi][tmpj].status != 0)
+                                return;
+
+                            currentLevel.startPoint.status = 0;
+                            jPanels[currentLevel.startPoint.x][currentLevel.startPoint.y].setBackground(Color.GRAY);
+
+                            currentLevel.startPoint = currentLevel.map[tmpi][tmpj];
+                            tmp.setBackground(Color.BLUE);
+                        } else if (e.getButton() == MouseEvent.BUTTON2)
+                        {
+                            JPanel tmp = (JPanel) e.getSource();
+                            int tmpi = 0;
+                            int tmpj = 0;
+                            for (int i = 0; i< currentLevel.map.length; i++)
+                            {
+                                for (int j = 0; j < currentLevel.map[0].length; j++)
+                                {
+                                    if (jPanels[i][j] == tmp)
+                                    {
+                                        tmpi = i;
+                                        tmpj = j;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (currentLevel.map[tmpi][tmpj].status == 0)
+                            {
+                                currentLevel.map[tmpi][tmpj].status = -1;
+                                tmp.setBackground(Color.BLACK);
+                            } else if (currentLevel.map[tmpi][tmpj].status == -1)
+                            {
+                                currentLevel.map[tmpi][tmpj].status = 0;
+                                tmp.setBackground(Color.GRAY);
+                            }
+                        } else if (e.getButton() == MouseEvent.BUTTON3)
+                        {
+                            JPanel tmp = (JPanel) e.getSource();
+                            int tmpi = 0;
+                            int tmpj = 0;
+                            for (int i = 0; i< currentLevel.map.length; i++)
+                            {
+                                for (int j = 0; j < currentLevel.map[0].length; j++)
+                                {
+                                    if (jPanels[i][j] == tmp)
+                                    {
+                                        tmpi = i;
+                                        tmpj = j;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (currentLevel.map[tmpi][tmpj].status != 0)
+                                return;
+
+                            currentLevel.endPoint.status = 0;
+                            jPanels[currentLevel.endPoint.x][currentLevel.endPoint.y].setBackground(Color.GRAY);
+
+                            currentLevel.endPoint = currentLevel.map[tmpi][tmpj];
+                            tmp.setBackground(Color.RED);
+                        }
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+
+                    }
+                });
                 switch (currentLevel.map[i][j].status) {
                     case -1: {
                         jPanels[i][j].setBackground(Color.BLACK);
@@ -94,11 +276,10 @@ public class PathfinderTester {
                         break;
                     }
                 }
-                jFrame.add(jPanels[i][j]);
+                grid.add(jPanels[i][j]);
             }
         }
-        testAStar();
-        testMinPlus();
+
         jFrame.setVisible(true);
     }
 
@@ -123,15 +304,13 @@ public class PathfinderTester {
             openList.remove(currentField);
 
             if (currentField == currentLevel.endPoint){
-                /*
+
                 Field prev = precessors.get(currentLevel.endPoint);
                 while (prev != currentLevel.startPoint)
                 {
                     jPanels[prev.x][prev.y].setBackground(Color.GREEN);
                     prev = precessors.get(prev);
                 }
-
-                */
                 break;
             }
 
@@ -155,11 +334,11 @@ public class PathfinderTester {
                     if ((i == 0 && j == 0) || closedList.contains(successor))
                         continue;
 
-                    double temp_g = Double.MAX_VALUE -1d;
+                    double temp_g = Double.MAX_VALUE;
                     if (g.containsKey(currentField))
-                        temp_g = g.get(currentField) + 1;
+                        temp_g = g.get(currentField) + Math.sqrt(Math.pow(successor.x-currentField.x,2) + Math.pow(successor.y-currentField.y,2));
 
-                    double temp_node_g = Double.MAX_VALUE -1d;
+                    double temp_node_g = Double.MAX_VALUE;
                     if (g.containsKey(successor))
                         temp_node_g = g.get(successor);
 
@@ -179,9 +358,7 @@ public class PathfinderTester {
 
     public static void testMinPlus()
     {
-
-        double[][] costMatrix = new double[20*20][20*20];
-
+        FieldMatrix costMatrix = new FieldMatrix(20,20);
         for (int i = 0; i<currentLevel.map.length; i++)
         {
             for (int j = 0; j<currentLevel.map[0].length; j++)
@@ -196,54 +373,36 @@ public class PathfinderTester {
                         Field b = currentLevel.map[k][l];
 
                         if (a == b) {
-                            costMatrix[a.x+20*a.y][b.x+20*b.y] = 0;
+                            costMatrix.m[a.x+20*a.y][b.x+20*b.y] = 0;
                             continue;
                         }
 
                         if (b.status == -1) {
-                            costMatrix[a.x+20*a.y][b.x+20*b.y] = Double.MAX_VALUE;
+                            costMatrix.m[a.x+20*a.y][b.x+20*b.y] = Double.MAX_VALUE;
                             continue;
                         }
 
                         if (Math.sqrt(Math.pow(a.x-b.x,2) + Math.pow(a.y-b.y,2)) <= Math.sqrt(2)) {
-                            costMatrix[a.x+20*a.y][b.x+20*b.y] =  Math.sqrt(Math.pow(a.x-b.x,2) + Math.pow(a.y-b.y,2));
+                            costMatrix.m[a.x+20*a.y][b.x+20*b.y] =  Math.sqrt(Math.pow(a.x-b.x,2) + Math.pow(a.y-b.y,2));
                             continue;
                         }
 
-                        costMatrix[a.x+20*a.y][b.x+20*b.y] = Double.MAX_VALUE;
+                        costMatrix.m[a.x+20*a.y][b.x+20*b.y] = Double.MAX_VALUE;
                     }
                 }
             }
         }
 
-        double[][] prev = costMatrix;
-
+        FieldMatrix prev = costMatrix;
 
         do{
 
-            double[][] tmp = new double[20*20][20*20];
-            for (int i = 0; i < 20*20; i++)
-            {
-                for (int j = 0; j < 20*20; j++)
-                {
-                    double min = Double.MAX_VALUE;
-                    for (int l = 0; l < 20*20; l++)
-                    {
-                        if (prev[i][l] + costMatrix[l][j] < min)
-                        {
-                            min = prev[i][l] + costMatrix[l][j];
-                        }
-                    }
-                    tmp[i][j] = min;
-                }
-            }
+            FieldMatrix tmp = MatrixMinPlus(prev,costMatrix);
 
             prev = costMatrix;
             costMatrix = tmp;
 
-        } while (!Arrays.deepEquals(prev,costMatrix));
-
-        System.out.println("No Loop!");
+        } while (!Arrays.deepEquals(prev.m,costMatrix.m));
 
         Field tmp = currentLevel.endPoint;
         while (tmp != currentLevel.startPoint)
@@ -254,7 +413,7 @@ public class PathfinderTester {
                 for (int j = -1; j <= 1; j++)
                 {
                     try {
-                        if (costMatrix[currentLevel.startPoint.x + 20*currentLevel.startPoint.y][(tmp.x+i)+20*(tmp.y+j)] < costMatrix[currentLevel.startPoint.x + 20*currentLevel.startPoint.y][(min.x)+20*(min.y)])
+                        if (costMatrix.m[currentLevel.startPoint.x + 20*currentLevel.startPoint.y][(tmp.x+i)+20*(tmp.y+j)] < costMatrix.m[currentLevel.startPoint.x + 20*currentLevel.startPoint.y][(min.x)+20*(min.y)])
                             min = currentLevel.map[tmp.x+i][tmp.y+j];
                     }catch (ArrayIndexOutOfBoundsException e)
                     {
@@ -271,14 +430,54 @@ public class PathfinderTester {
 
     }
 
-    public static class Matrix
+    public static FieldMatrix MatrixMinPlus(FieldMatrix m1, FieldMatrix m2)
     {
-        public double[][] m;
-
-        public Matrix(int width, int height)
+        FieldMatrix tmp = new FieldMatrix(20,20);
+        for (int i = 0; i < tmp.m.length; i++)
         {
-            m = new double[width*height][width*height];
+            for (int j = 0; j < tmp.m[0].length; j++)
+            {
+                double min = Double.MAX_VALUE;
+                for (int l = 0; l < tmp.m.length; l++)
+                {
+                    if (m2.m[i][l] + m1.m[l][j] < min)
+                    {
+                        min = m2.m[i][l] + m1.m[l][j];
+                    }
+                }
+                tmp.m[i][j] = min;
+            }
         }
+        return tmp;
+    }
+
+    public static void testVisibilityGraphs()
+    {
+        ArrayList<Field> navPoints = new ArrayList<>();
+
+        for (int i = 0; i < currentLevel.map.length; i++)
+        {
+            for (int j = 0; j < currentLevel.map[0].length; j++)
+            {
+                if (currentLevel.map[i][j].status != -1)
+                    continue;
+                for (int k = -1; k <= 1; k++)
+                {
+                    for (int l = -1; l <= 1; l++)
+                    {
+                        try {
+                            if (!navPoints.contains(currentLevel.map[i+k][j+l]) && currentLevel.map[i+k][j+l].status != -1)
+                                navPoints.add(currentLevel.map[i+k][j+l]);
+
+                        } catch (ArrayIndexOutOfBoundsException e)
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
 }
