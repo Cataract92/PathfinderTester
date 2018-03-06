@@ -2,10 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.lang.reflect.Array;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class PathfinderTester {
@@ -30,6 +29,17 @@ public class PathfinderTester {
         public FieldMatrix(int width, int height)
         {
             m = new double[width*height][width*height];
+        }
+    }
+
+    public static class Tuple
+    {
+        public Field field;
+        public double distance;
+
+        public Tuple(Field field, double distance) {
+            this.field = field;
+            this.distance = distance;
         }
     }
 
@@ -107,6 +117,34 @@ public class PathfinderTester {
             jFrame.setVisible(true);
         });
         buttons.add(startMinMax);
+
+        JButton startVis = new JButton("Vis");
+        startVis.addActionListener(e -> {
+            for (int i = 0;i<currentLevel.map.length;i++) {
+                for (int j = 0; j < currentLevel.map[0].length; j++) {
+                    switch (currentLevel.map[i][j].status) {
+                        case -1: {
+                            jPanels[i][j].setBackground(Color.BLACK);
+                            break;
+                        }
+                        case -2: {
+                            jPanels[i][j].setBackground(Color.BLUE);
+                            break;
+                        }
+                        case -3: {
+                            jPanels[i][j].setBackground(Color.RED);
+                            break;
+                        }
+                        default: {
+                            jPanels[i][j].setBackground(Color.GRAY);
+                        }
+                    }
+                }
+            }
+            testVisibilityGraphs();
+            jFrame.setVisible(true);
+        });
+        buttons.add(startVis);
 
         jFrame.add(buttons,BorderLayout.SOUTH);
 
@@ -451,9 +489,16 @@ public class PathfinderTester {
         return tmp;
     }
 
+
+    static HashMap<Field,HashMap<Field,Double>> visibilityMap = new HashMap<>();
+    static HashMap<Field,HashMap<Field,Tuple>> routeMap = new HashMap<>();
+
     public static void testVisibilityGraphs()
     {
+
         ArrayList<Field> navPoints = new ArrayList<>();
+        ArrayList<Rectangle> barriers = new ArrayList<>();
+
 
         for (int i = 0; i < currentLevel.map.length; i++)
         {
@@ -461,6 +506,8 @@ public class PathfinderTester {
             {
                 if (currentLevel.map[i][j].status != -1)
                     continue;
+
+                barriers.add(new Rectangle(i,j,1,1));
                 for (int k = -1; k <= 1; k++)
                 {
                     for (int l = -1; l <= 1; l++)
@@ -478,6 +525,87 @@ public class PathfinderTester {
             }
         }
 
+
+        for (Field start : navPoints)
+        {
+            visibilityMap.put(start,new HashMap<>());
+            routeMap.put(start,new HashMap<>());
+            for (Field end : navPoints)
+            {
+                boolean isVisible = true;
+                Line2D line = new Line2D.Double(start.x, start.y,end.x, end.y);
+                for (Rectangle rect : barriers)
+                {
+                    if (line.intersects(rect)){
+                        isVisible = false;
+                        break;
+                    }
+                }
+                if (isVisible)
+                    visibilityMap.get(start).put(end,Math.sqrt(Math.pow(start.x - end.x,2)+Math.pow(start.y - end.y,2)));
+            }
+        }
+
+
+        for (Field vis : visibilityMap.keySet())
+        {
+            for (Field vis2 : visibilityMap.get(vis).keySet())
+            {
+                jPanels[vis2.x][vis2.y].setBackground(Color.CYAN);
+            }
+        }
+
+        for (Field start : navPoints)
+        {
+            routeMap.get(start).put(start, new Tuple(start, 0d));
+            for (Field nav : visibilityMap.get(start).keySet()) {
+                Tuple t;
+                if (!routeMap.get(nav).containsKey(start)) {
+                    t = new Tuple(start, visibilityMap.get(start).get(nav));
+                    routeMap.get(nav).put(start,t);
+                }
+                t = routeMap.get(nav).get(start);
+
+                if (t.distance > visibilityMap.get(start).get(nav))
+                {
+                    t.distance = visibilityMap.get(start).get(nav);
+                    t.field = start;
+                }
+
+                route(start,nav);
+            }
+        }
+
+
+
+    }
+
+    public static void route(Field start, Field current)
+    {
+        for (Field nav : visibilityMap.get(current).keySet())
+        {
+            if (nav == start)
+                continue;
+
+            Tuple t;
+
+            if (!routeMap.get(nav).containsKey(start)) {
+                t = new Tuple(current, visibilityMap.get(current).get(nav) + routeMap.get(current).get(start).distance);
+                routeMap.get(nav).put(start,t);
+                route(start,nav);
+                continue;
+            }
+
+            t = routeMap.get(nav).get(start);
+
+            if (t.distance > visibilityMap.get(current).get(nav) + routeMap.get(current).get(start).distance)
+            {
+                t.distance = visibilityMap.get(current).get(nav) + routeMap.get(current).get(start).distance;
+                t.field = current;
+                route(start,nav);
+                continue;
+            }
+        }
     }
 
 }
