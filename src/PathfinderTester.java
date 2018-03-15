@@ -142,6 +142,8 @@ public class PathfinderTester extends JFrame {
         tester.init(level);
 
         tester.testAllAlgorithms();
+        tester.testAllAlgorithms();
+        //tester.testAllAlgorithms();
 
         System.exit(0);
     }

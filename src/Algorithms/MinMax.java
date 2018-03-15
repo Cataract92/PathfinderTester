@@ -10,16 +10,16 @@ public class MinMax extends PFAlgorithm {
     {
         private double[][] matrix;
 
-        public Matrix(int width, int height)
+        Matrix(int width, int height)
         {
             matrix = new double[width*height][width*height];
         }
 
-        public double[][] getMatrix() {
+        double[][] getMatrix() {
             return matrix;
         }
 
-        public Matrix calcMinPlus(Matrix m)
+        Matrix calcMinPlus(Matrix m)
         {
             Matrix tmp = new Matrix(20,20);
             for (int i = 0; i < tmp.getMatrix().length; i++)
@@ -89,6 +89,7 @@ public class MinMax extends PFAlgorithm {
 
         Matrix prev = costMatrix;
 
+
         do{
 
             Matrix tmp = prev.calcMinPlus(costMatrix);
@@ -97,10 +98,12 @@ public class MinMax extends PFAlgorithm {
             costMatrix = tmp;
 
         } while (!Arrays.deepEquals(prev.getMatrix(),costMatrix.getMatrix()));
+
     }
 
     @Override
     public void compute() {
+
 
         Level.Field tmp = level.getEnd();
         while (tmp != level.getStart())
@@ -124,5 +127,7 @@ public class MinMax extends PFAlgorithm {
             if (tmp != level.getStart())
                 path.add(tmp);
         }
+
     }
+
 }
