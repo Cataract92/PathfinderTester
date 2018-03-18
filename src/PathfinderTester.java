@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2018.
+ * Nico Feld
+ * 1169233
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
