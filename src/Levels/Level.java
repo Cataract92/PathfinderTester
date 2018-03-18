@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018.
+ * Nico Feld
+ * 1169233
+ */
 package Levels;
 
 public abstract class Level

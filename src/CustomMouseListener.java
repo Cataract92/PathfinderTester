@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018.
+ * Nico Feld
+ * 1169233
+ */
 import Levels.Level;
 
 import javax.swing.*;

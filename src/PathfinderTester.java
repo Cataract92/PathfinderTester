@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018.
+ * Nico Feld
+ * 1169233
+ */
 import Algorithms.AStar;
 import Algorithms.MinPlus;
 import Algorithms.PFAlgorithm;
