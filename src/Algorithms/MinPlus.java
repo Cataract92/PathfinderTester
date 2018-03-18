@@ -3,7 +3,7 @@ package Algorithms;
 import Levels.Level;
 import java.util.Arrays;
 
-public class MinMax extends PFAlgorithm {
+public class MinPlus extends PFAlgorithm {
 
 
     private class Matrix
@@ -43,8 +43,8 @@ public class MinMax extends PFAlgorithm {
 
     private Matrix costMatrix;
 
-    public MinMax() {
-        super("MinMax");
+    public MinPlus() {
+        super("MinPlus");
     }
 
     @Override

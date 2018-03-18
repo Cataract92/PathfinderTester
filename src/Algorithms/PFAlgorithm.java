@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public abstract class PFAlgorithm {
 
-    String name = null;
+    String name;
     Level level = null;
 
     ArrayList<Level.Field> path = new ArrayList<>();

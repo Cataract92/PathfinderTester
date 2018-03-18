@@ -1,5 +1,5 @@
 import Algorithms.AStar;
-import Algorithms.MinMax;
+import Algorithms.MinPlus;
 import Algorithms.PFAlgorithm;
 import Algorithms.VisibilityGraphs;
 import Levels.Level;
@@ -126,11 +126,10 @@ public class PathfinderTester extends JFrame {
 
     public static void main(String[] args)
     {
-
         PathfinderTester tester = new PathfinderTester("PathfinderTester");
 
         tester.addAlgorithm(new AStar());
-        tester.addAlgorithm(new MinMax());
+        tester.addAlgorithm(new MinPlus());
         tester.addAlgorithm(new VisibilityGraphs());
 
 
@@ -140,12 +139,6 @@ public class PathfinderTester extends JFrame {
         level.setEnd(level.getMap()[19][19]);
 
         tester.init(level);
-
-        tester.testAllAlgorithms();
-        tester.testAllAlgorithms();
-        //tester.testAllAlgorithms();
-
-        System.exit(0);
     }
 
 }

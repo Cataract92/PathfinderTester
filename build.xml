@@ -1,0 +1,42 @@
+<?xml version = "1.0"?>
+
+<!-- Nico Feld - 1169233 -->
+
+<project name = "PathfinderTester" basedir = "." default = "build">
+    <property name = "src.dir" value = "src"/>
+    <property name = "build.dir" value = "${basedir}/META-INF/classes"/>
+    <property name = "name" value = "PathfinderTester"/>
+
+    <path id = "master-classpath">
+        <pathelement path = "${build.dir}"/>
+    </path>
+
+    <target name = "build" description = "Compile source tree fst files">
+
+        <mkdir dir = "${build.dir}"/>
+
+        <javac destdir = "${build.dir}" source = "1.8" target = "1.8" includeantruntime="false" >
+            <src path = "${src.dir}"/>
+            <classpath refid = "master-classpath"/>
+        </javac>
+
+        <jar destfile = "${basedir}/PathfinderTester.jar"
+             basedir = "${build.dir}">
+
+            <manifest>
+                <attribute name = "Manifest-Version" value ="1.0"/>
+                <attribute name = "Main-Class" value = "PathfinderTester"/>
+            </manifest>
+        </jar>
+
+    </target>
+
+    <target name = "clean" description = "Clean output directories">
+        <delete includeemptydirs="true">
+            <fileset dir = "${basedir}" defaultexcludes="false" includes="**/META-INF/"/>
+        </delete>
+        <delete>
+            <fileset dir = "${basedir}" includes="PathfinderTester.jar"/>
+        </delete>
+    </target>
+</project>
